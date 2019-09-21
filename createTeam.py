@@ -1,6 +1,7 @@
 import json
 import os
 import boto3
+from urllib.parse import parse_qs
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -9,10 +10,15 @@ def lambda_handler(event, context):
 
     table = dynamodb.Table('Scavenger-Hunt-Teams')
 
-    params = event['body']
+    params = parse_qs(event['body'])
 
-    teamName = params['teamName']
-    teamPassword = params['teamPassword']
+
+    if 'teamName' not in params:
+        logging.error("No team name given.")
+        raise Exception("Couldn't create the team.")
+
+    teamName = params['teamName'][0]
+    teamPassword = params['teamPassword'][0]
 
     item = {
         'teamName': teamName,
@@ -24,5 +30,5 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps(item)
+        'body': json.dumps(params)
     }
