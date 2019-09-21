@@ -9,12 +9,33 @@
             <div id="statusdiv">
                 <p id="status" align="left">Status pending</p>
             </div><br><br>
+
             Team Name: <input type="input" id="teamName">
-            Password: <input type="input" id="teamPassword">
+            Password: <input type="password" id="teamPassword">
             Answer: <input type="input" id="answer">
-            <input type="submit" value="Submit">
+            <select id="tn">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button onclick="validation()">Submit</button>
 
             <div id="response"></div>
+
+            <script>
+                function validation() {
+                    let url = "https://ijvga5xbb2.execute-api.us-east-2.amazonaws.com/default/submitAnswer?"
+                    let val1 = document.getElementById('teamName').value;
+                    let val2 = document.getElementById('teamPassword').value;
+                    let val3 = document.getElementById('answer').value;
+                    let val4 = document.getElementById('tn').value;
+                    let endpoint = url + "taskNum=" + val4 + "&teamName=" + val1 + "&teamPassword=" + val2 + "&answer=" + val3;
+                    let promise = fetch(endpoint);
+                    console.log(endpoint);
+                    window.alert(endpoint);
+                }
+                </script>
         </center>
     </body>
 </html>

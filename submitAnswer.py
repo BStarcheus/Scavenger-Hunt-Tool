@@ -11,15 +11,15 @@ def lambda_handler(event, context):
     tableTasks = dynamodb.Table('Scavenger-Hunt-Tasks')
     tableTeams = dynamodb.Table('Scavenger-Hunt-Teams')
 
-    params = parse_qs(event['body'])
-    taskNum = params['taskNum'][0]
-    teamName = params['teamName'][0]
-    teamPassword = params['teamPassword'][0]
-    answer = params['answer'][0]
+    params = event['queryStringParameters']
+    taskNum = params['taskNum']
+    teamName = params['teamName']
+    teamPassword = params['teamPassword']
+    answer = params['answer']
 
     taskRow = tableTasks.get_item(
         Key={
-            'id': taskNum
+            'id': int(taskNum)
         })
 
     correctAnswer = taskRow['Item']['answer']
@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     nextLocationHint = taskRow['Item']['nextLocationHint']
 
 
-    if password == correctPassword:
+    if teamPassword == correctPassword:
         if answer == correctAnswer:
 
             message = "Correct answer." + nextLocationHint
@@ -45,7 +45,7 @@ def lambda_handler(event, context):
 
             update_expr = 'SET task{} = :val1'.format(taskNum)
 
-            teamRow.update_item(
+            tableTeams.update_item(
                 Key={'teamName': teamName},
                 UpdateExpression=update_expr,
                 ExpressionAttributeValues={':val1': 1}
