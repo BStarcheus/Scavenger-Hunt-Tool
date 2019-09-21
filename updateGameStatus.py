@@ -8,21 +8,13 @@ dynamodb = boto3.resource('dynamodb')
 
 def lambda_handler(event, context):
 
-    table = dynamodb.Table('Scavenger-Hunt-Teams')
+    table = dynamodb.Table('Scavenger-Hunt-Game')
 
     params = parse_qs(event['body'])
-
-
-    if 'teamName' not in params:
-        logging.error("No team name given.")
-        raise Exception("Couldn't create the team.")
-
-    teamName = params['teamName'][0]
-    teamPassword = params['teamPassword'][0]
+    status = params['gameStatus'][0]
 
     item = {
-        'teamName': teamName,
-        'password': teamPassword
+        'gameStatus': status
     }
 
     # write the todo to the database
