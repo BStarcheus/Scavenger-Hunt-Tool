@@ -6,14 +6,14 @@
 
     <body topmargin="50">
         <br>
-        <form action="" method="post">
+        <form action="https://ijvga5xbb2.execute-api.us-east-2.amazonaws.com/default/createTeam" method="post">
             <div id="Signup">
                 <h1>Team Signup</h1>
-                Team name: <input type="text" id="tname"> <br><br>
-                Team username: <input type="text" id="username"> <br><br>
-                Create password: <input type="password"> <br><br>
-                Confirm password: <input type="password"> <br><br>
+                Team name: <input type="text" id="tname" name="teamName"> <br><br>
+                Create password: <input type="password" name="teamPassword"> <br><br>
+                <button type="submit">Submit</button>
             </div>
+
         </form>
     </body>
 </html>

@@ -9,10 +9,10 @@ def lambda_handler(event, context):
 
     table = dynamodb.Table('Scavenger-Hunt-Teams')
 
-    params = event['queryStringParameters']
+    params = event['body']
 
     teamName = params['teamName']
-    teamPassword = params['password']
+    teamPassword = params['teamPassword']
 
     item = {
         'teamName': teamName,
