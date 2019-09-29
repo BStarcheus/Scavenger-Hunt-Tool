@@ -1,0 +1,80 @@
+<html>
+    <head>
+        <title>Submission</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+
+    <body topmargin="50">
+        <center>
+            <div id="statusdiv">
+                <p id="status" align="left">Status pending</p>
+            </div><br><br>
+
+            Team Name: <input type="input" id="teamName">
+            Password: <input type="password" id="teamPassword">
+            Answer: <input type="input" id="answer">
+            <select id="tn">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <button onclick="sendAnswer()">Submit</button>
+
+            <div id="response"></div>
+
+            <script>
+                async function sendAnswer() {
+                    let url = "https://ijvga5xbb2.execute-api.us-east-2.amazonaws.com/default/submitAnswer"
+                    let val1 = document.getElementById('tn').value;
+                    let val2 = document.getElementById('teamName').value;
+                    let val3 = document.getElementById('teamPassword').value;
+                    let val4 =  document.getElementById('answer').value;
+
+                    try {
+                        let response = await fetch(url, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                taskNum: val1,
+                                teamName: val2,
+                                teamPassword: val3,
+                                answer: val4
+                            })
+                        });
+                        if (response.ok) {
+                            const text = await response.text()
+
+                            //Update Reponse div with response
+                            document.getElementById("response").innerText = text;
+
+                            getGameStatus();
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
+                async function getGameStatus() {
+                    let url = "https://ijvga5xbb2.execute-api.us-east-2.amazonaws.com/default/getGameStatus"
+
+                    try {
+                        let response = await fetch(url);
+                        if (response.ok) {
+                            const text = await response.text()
+
+                            //Update Status div with response
+                            document.getElementById("status").innerText = text;
+                        }
+                    } catch (error) {
+                        console.log(error);
+                        document.getElementById("status").innerText = "Could not fetch status.";
+                    }
+                }
+
+                //Run on each page load
+                getGameStatus();
+
+            </script>
+        </center>
+    </body>
+</html>
