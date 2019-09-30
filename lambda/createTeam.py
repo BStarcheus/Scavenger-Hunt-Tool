@@ -8,16 +8,26 @@ dynamodb = boto3.resource('dynamodb')
 
 def lambda_handler(event, context):
 
-    table = dynamodb.Table('Scavenger-Hunt-Teams')
+    tableTeams = dynamodb.Table('Scavenger-Hunt-Teams')
+    tableGame = dynamodb.Table('Scavenger-Hunt-Game')
+
+    #Get the number of tasks in the game.
+    game = tableGame.get_item(Key={'id': 1})
+    numTasks = int(game['Item']['tasks'])
+    if numTasks < 1:
+        return {
+            'statusCode': 280,
+            'headers': {"Access-Control-Allow-Origin": "*"},
+            'body': "Error. Game has invalid number of tasks."
+        }
 
     params = parse_qs(event['body'])
 
-
     if 'teamName' not in params:
         return {
-            'statusCode': 400,
+            'statusCode': 250,
             'headers': {"Access-Control-Allow-Origin": "*"},
-            'body': "Error. Team could not be created."
+            'body': "Error. No team name given."
         }
 
     teamName = params['teamName'][0]
@@ -27,8 +37,13 @@ def lambda_handler(event, context):
         'teamName': teamName,
         'password': teamPassword
     }
+    # Start each team off with no tasks complete.
+    for i in range(1, numTasks + 1):
+        tempTask = 'task{}'.format(i)
+        item[tempTask] = 0
 
-    putReply = table.put_item(Item=item)
+    # Add the new team to the database.
+    putReply = tableTeams.put_item(Item=item)
 
     if putReply['ResponseMetadata']['HTTPStatusCode'] == 200:
         bod = "{} created.".format(teamName)
@@ -39,7 +54,7 @@ def lambda_handler(event, context):
         }
     else:
         return {
-            'statusCode': 400,
+            'statusCode': 299,
             'headers': {"Access-Control-Allow-Origin": "*"},
             'body': "Error. Team could not be created."
         }

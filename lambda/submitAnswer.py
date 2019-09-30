@@ -1,35 +1,33 @@
 import json
 import os
 import boto3
-from urllib.parse import parse_qs
 
 dynamodb = boto3.resource('dynamodb')
 
-def isWinner(table, name):
-    tableTeams = dynamodb.Table('Scavenger-Hunt-Teams')
-    tableGame = dynamodb.Table('Scavenger-Hunt-Game')
-    teamRow = table.get_item(
-        Key={
-            'teamName': name
-        })
-    row = tableGame.get_item(Key={'id': 1})
+def updateWinner(tableT, tableG, name, status):
+    if status != "Game in progress":
+        # Someone has already won.
+        # The player can still submit their answer and play the game,
+        # they just can't win.
+        return
 
-    if len(teamRow['Item']) > 0 and row['Item']['gameStatus'] != "Game in progress":
+    # Get the updated progress of the team.
+    teamRow = tableT.get_item(Key={'teamName': name})
+
+    if len(teamRow['Item']) > 0:
         hasWon = True
         keys = list(teamRow['Item'])
         for col in keys:
-            if col[:4] != 'task':
+            if col[:4] == 'task':
                 if teamRow['Item'][col] == 0:
-                    hasWon = false
+                    hasWon = False
                     break
 
         if (hasWon):
-            tableGame = dynamodb.Table('Scavenger-Hunt-Game')
-
             val1 = "{} has won the game!".format(name)
             update_expr = 'SET gameStatus = :val1'
 
-            updateReply = tableGame.update_item(
+            updateReply = tableG.update_item(
                 Key={'id': 1},
                 UpdateExpression=update_expr,
                 ExpressionAttributeValues={':val1': val1}
@@ -37,13 +35,24 @@ def isWinner(table, name):
             if updateReply['ResponseMetadata']['HTTPStatusCode'] != 200:
                 #Error in AWS
                 return {
-                    'statusCode': 400,
+                    'statusCode': 290,
                     'headers': {"Access-Control-Allow-Origin": "*"},
                     'body': "Error. Could not update team table. Try again."
                 }
 
 
 def lambda_handler(event, context):
+
+    tableGame = dynamodb.Table('Scavenger-Hunt-Game')
+    game = tableGame.get_item(Key={'id': 1})
+    if game['Item']['gameActive'] != 1:
+        # If the game has not started, do not accept any answers
+        return {
+            'statusCode': 250,
+            'headers': {"Access-Control-Allow-Origin": "*"},
+            'body': 'Game has not yet started.'
+        }
+    gameStatus = game['Item']['gameStatus']
 
     tableTasks = dynamodb.Table('Scavenger-Hunt-Tasks')
     tableTeams = dynamodb.Table('Scavenger-Hunt-Teams')
@@ -52,7 +61,7 @@ def lambda_handler(event, context):
 
     if len(params) < 1:
         response = {
-            'statusCode': 450,
+            'statusCode': 299,
             'headers': {"Access-Control-Allow-Origin": "*"},
             'body': 'Invalid request.'
             }
@@ -70,10 +79,14 @@ def lambda_handler(event, context):
         correctAnswer = taskRow['Item']['answer']
         nextLocationHint = taskRow['Item']['nextLocationHint']
 
-        teamRow = tableTeams.get_item(
-            Key={
-                'teamName': teamName
-            })
+        teamRow = tableTeams.get_item(Key={'teamName': teamName})
+        if 'Item' not in teamRow:
+            # User does not exist
+            return {
+                'statusCode': 285,
+                'headers': {"Access-Control-Allow-Origin": "*"},
+                'body': "Team does not exist."
+            }
 
         correctPassword = teamRow['Item']['password']
 
@@ -96,27 +109,28 @@ def lambda_handler(event, context):
                         'headers': {"Access-Control-Allow-Origin": "*"},
                         'body': message
                     }
-                    isWinResponse = isWinner(tableTeams, teamName)
+
+                    isWinResponse = updateWinner(tableTeams, tableGame, teamName, gameStatus)
                     if isWinResponse:
                         return isWinResponse
                 else:
                     #Error in AWS
                     response = {
-                        'statusCode': 400,
+                        'statusCode': 280,
                         'headers': {"Access-Control-Allow-Origin": "*"},
-                        'body': "Error. Could not update team table. Try again."
+                        'body': "Error. Correct answer but could not update team table. Try again."
                     }
             else:
                 #Answer incorrect
                 response = {
-                    'statusCode': 300,
+                    'statusCode': 230,
                     'headers': {"Access-Control-Allow-Origin": "*"},
                     'body': 'Wrong answer. Try again.'
                 }
         else:
             #Password incorrect
             response = {
-                'statusCode': 350,
+                'statusCode': 220,
                 'headers': {"Access-Control-Allow-Origin": "*"},
                 'body': 'Password incorrect.'
             }

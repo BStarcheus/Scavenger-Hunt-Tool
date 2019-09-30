@@ -1,25 +1,24 @@
 import json
 import os
 import boto3
-from urllib.parse import parse_qs
 
 dynamodb = boto3.resource('dynamodb')
 
 
 def lambda_handler(event, context):
 
-    table = dynamodb.Table('Scavenger-Hunt-Game')
+    tableGame = dynamodb.Table('Scavenger-Hunt-Game')
 
-    row = table.get_item(Key={'id': 1})
+    game = tableGame.get_item(Key={'id': 1})
 
-    if 'gameStatus' not in row['Item']:
+    if 'gameStatus' not in game['Item']:
         return {
-            'statusCode': 400,
+            'statusCode': 299,
             'headers': {"Access-Control-Allow-Origin": "*"},
             'body': "Error. Could not get status."
         }
 
-    gameStatus = row['Item']['gameStatus']
+    gameStatus = game['Item']['gameStatus']
     return {
         'statusCode': 200,
         'headers': {"Access-Control-Allow-Origin": "*"},
