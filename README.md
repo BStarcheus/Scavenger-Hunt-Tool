@@ -2,33 +2,37 @@
 A tool to create a scavenger hunt game and deploy to AWS.
 
 
-# Configuration
+# Requirements
 
-## AWS DynamoDB
+- [Serverless Framework](https://serverless.com/framework/docs/getting-started/) with [AWS configured](https://serverless.com/framework/docs/providers/aws/guide/credentials/)
 
-Create tables:  
-- 'Scavenger-Hunt-Teams'  
-- 'Scavenger-Hunt-Game'  
-- 'Scavenger-Hunt-Tasks'  
+- boto3  
+`pip install boto3`
 
-In 'Scavenger-Hunt-Game' insert a row:  
-- id: 1  
-- gameActive: 0  
-- gameStatus: "Stopped"  
-- tasks: NUMBER_OF_TASKS_FOR_YOUR_GAME  
+- Create ~/.aws/credentials
+```
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY_ID
+aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+```
 
-In 'Scavenger-Hunt-Tasks' insert a row for each task:  
-- id: TASK_NUMBER_STARTING_AT_0  
-- question: YOUR_QUESTION  
-- answer: YOUR_ANSWER  
-- nextLocationHint: YOUR_HINT_TO_NEXT_SCAV_HUNT_LOCATION  
+- Create ~/.aws/config
+```
+[default]
+region=YOUR_REGION
+```
 
-## AWS Lambda
 
-Create Functions:  
-- 'submitAnswer'  
-- 'getGameStatus'  
-- 'createTeam'  
+# Setup
+
+Deploy the service using the Serverless Framework  
+`serverless deploy`  
+
+
+Run setupGame.py and enter your game information, questions, and answers.  
+This will initialize the Game and Task tables in DynamoDB.  
+`python3 setupGame.py`  
+
 
 ## Frontend
 
@@ -40,26 +44,7 @@ In /frontend/submission.html:
 
 Host the frontend on your own GitHub Pages site!
 
-## Game organizer setup
-
-`pip install boto3`
-
-Create ~/.aws/credentials
-```
-[default]
-aws_access_key_id = YOUR_ACCESS_KEY_ID
-aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
-```
-
-Create ~/.aws/config
-```
-[default]
-region=YOUR_REGION
-```
-
-Check your DynamoDB database for your region. Ex: us-east-2
-
 
 # Start the game
 
-`python startGame.py`
+`python3 startGame.py`

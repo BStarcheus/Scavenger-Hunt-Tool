@@ -1,0 +1,80 @@
+service: Scavenger-Hunt
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: prod
+  region: us-east-2
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:BatchGetItem"
+        - "dynamodb:GetItem"
+        - "dynamodb:Query"
+        - "dynamodb:Scan"
+        - "dynamodb:BatchWriteItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+      Resource: "arn:aws:dynamodb:*:*:*"
+
+functions:
+  submitAnswer:
+    handler: submitAnswer.lambda_handler
+    events:
+      - http:
+          path: /submitAnswer
+          method: post
+  createTeam:
+    handler: createTeam.lambda_handler
+    events:
+      - http:
+          path: /createTeam
+          method: post
+  getGameStatus:
+    handler: getGameStatus.lambda_handler
+    events:
+      - http:
+          path: /getGameStatus
+          method: get
+
+resources:
+  Resources:
+    ScavengerHuntGame:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Scavenger-Hunt-Game
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: "5"
+          WriteCapacityUnits: "5"
+    ScavengerHuntTeams:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Scavenger-Hunt-Teams
+        AttributeDefinitions:
+          - AttributeName: teamName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: teamName
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: "5"
+          WriteCapacityUnits: "5"
+    ScavengerHuntTasks:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Scavenger-Hunt-Tasks
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: "5"
+          WriteCapacityUnits: "5"

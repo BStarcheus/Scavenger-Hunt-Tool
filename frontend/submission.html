@@ -24,8 +24,11 @@
             <div id="response"></div>
 
             <script>
+                submitAnswerURL = "INSERT_YOUR_ENDPOINT_URL_HERE"
+                getGameStatusURL = "INSERT_YOUR_ENDPOINT_URL_HERE"
+
                 async function sendAnswer() {
-                    let url = "https://ijvga5xbb2.execute-api.us-east-2.amazonaws.com/default/submitAnswer"
+                    let url = submitAnswerURL
                     let val1 = document.getElementById('tn').value;
                     let val2 = document.getElementById('teamName').value;
                     let val3 = document.getElementById('teamPassword').value;
@@ -55,7 +58,7 @@
                 }
 
                 async function getGameStatus() {
-                    let url = "https://ijvga5xbb2.execute-api.us-east-2.amazonaws.com/default/getGameStatus"
+                    let url = getGameStatusURL
 
                     try {
                         let response = await fetch(url);

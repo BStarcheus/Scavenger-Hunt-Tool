@@ -11,6 +11,13 @@ def lambda_handler(event, context):
 
     game = tableGame.get_item(Key={'id': 1})
 
+    if 'Item' not in game:
+        return {
+            'statusCode': 299,
+            'headers': {"Access-Control-Allow-Origin": "*"},
+            'body': "Error. No game set up."
+        }
+
     if 'gameStatus' not in game['Item']:
         return {
             'statusCode': 299,

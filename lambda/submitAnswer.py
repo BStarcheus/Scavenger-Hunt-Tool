@@ -45,6 +45,14 @@ def lambda_handler(event, context):
 
     tableGame = dynamodb.Table('Scavenger-Hunt-Game')
     game = tableGame.get_item(Key={'id': 1})
+
+    if 'Item' not in game:
+        return {
+            'statusCode': 299,
+            'headers': {"Access-Control-Allow-Origin": "*"},
+            'body': "Error. No game set up."
+        }
+
     if game['Item']['gameActive'] != 1:
         # If the game has not started, do not accept any answers
         return {
@@ -75,6 +83,13 @@ def lambda_handler(event, context):
             Key={
                 'id': int(taskNum)
             })
+
+        if 'Item' not in taskRow:
+            return {
+                'statusCode': 298,
+                'headers': {"Access-Control-Allow-Origin": "*"},
+                'body': "Invalid task number."
+            }
 
         correctAnswer = taskRow['Item']['answer']
         nextLocationHint = taskRow['Item']['nextLocationHint']

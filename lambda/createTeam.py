@@ -13,6 +13,14 @@ def lambda_handler(event, context):
 
     #Get the number of tasks in the game.
     game = tableGame.get_item(Key={'id': 1})
+
+    if 'Item' not in game:
+        return {
+            'statusCode': 299,
+            'headers': {"Access-Control-Allow-Origin": "*"},
+            'body': "Error. No game set up."
+        }
+        
     numTasks = int(game['Item']['tasks'])
     if numTasks < 1:
         return {
