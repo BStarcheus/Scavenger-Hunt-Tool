@@ -36,6 +36,12 @@ functions:
       - http:
           path: /getGameStatus
           method: get
+  getNumTasks:
+    handler: getNumTasks.lambda_handler
+    events:
+      - http:
+          path: /getNumTasks
+          method: get
 
 resources:
   Resources:

@@ -20,7 +20,7 @@ def lambda_handler(event, context):
             'headers': {"Access-Control-Allow-Origin": "*"},
             'body': "Error. No game set up."
         }
-        
+
     numTasks = int(game['Item']['tasks'])
     if numTasks < 1:
         return {
@@ -51,7 +51,14 @@ def lambda_handler(event, context):
         item[tempTask] = 0
 
     # Add the new team to the database.
-    putReply = tableTeams.put_item(Item=item)
+    try:
+        putReply = tableTeams.put_item(Item=item, ConditionExpression="attribute_not_exists(teamName)")
+    except:
+        return {
+            'statusCode': 297,
+            'headers': {"Access-Control-Allow-Origin": "*"},
+            'body': "Error. That team name is already taken."
+        }
 
     if putReply['ResponseMetadata']['HTTPStatusCode'] == 200:
         bod = "{} created.".format(teamName)

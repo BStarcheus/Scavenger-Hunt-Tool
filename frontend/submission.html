@@ -15,9 +15,6 @@
             Answer: <input type="input" id="answer">
             <select id="tn">
                 <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
             </select>
             <button onclick="sendAnswer()">Submit</button>
 
@@ -26,6 +23,7 @@
             <script>
                 submitAnswerURL = "INSERT_YOUR_ENDPOINT_URL_HERE"
                 getGameStatusURL = "INSERT_YOUR_ENDPOINT_URL_HERE"
+                getNumTasksURL = "INSERT_YOUR_ENDPOINT_URL_HERE"
 
                 async function sendAnswer() {
                     let url = submitAnswerURL
@@ -74,7 +72,32 @@
                     }
                 }
 
+                async function updateSelectInput() {
+                    let url = getNumTasksURL
+
+                    try {
+                        let response = await fetch(url);
+                        if (response.ok) {
+                            const text = await response.text();
+                            let select = document.getElementById("tn");
+
+                            //Update Select input to have correct number of options. Default 1
+                            const num = parseInt(text);
+                            for (let i = 2; i <= num; i++) {
+                                let temp = document.createElement("option");
+                                temp.innerText = i
+                                temp.value = i
+                                select.appendChild(temp);
+                            }
+                        }
+                    } catch (error) {
+                        console.log(error);
+                        document.getElementById("status").innerText = "Could not fetch number of tasks.";
+                    }
+                }
+
                 //Run on each page load
+                updateSelectInput();
                 getGameStatus();
 
             </script>

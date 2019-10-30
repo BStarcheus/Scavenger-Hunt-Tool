@@ -40,7 +40,7 @@ In /frontend/signup.html:
 - Insert your HTTP Trigger URL for createTeam.
 
 In /frontend/submission.html:  
-- Insert your HTTP Trigger URL for submitAnswer and getGameStatus, in that order.
+- Insert your HTTP Trigger URL for submitAnswer, getGameStatus, and getNumTasks in that order.
 
 Host the frontend on your own GitHub Pages site!
 

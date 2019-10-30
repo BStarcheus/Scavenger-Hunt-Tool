@@ -106,7 +106,7 @@ def lambda_handler(event, context):
         correctPassword = teamRow['Item']['password']
 
         if teamPassword == correctPassword:
-            if answer == correctAnswer:
+            if answer.lower() == correctAnswer.lower():
                 #Change their score for that task from 0 to 1
                 update_expr = 'SET task{} = :val1'.format(taskNum)
 
